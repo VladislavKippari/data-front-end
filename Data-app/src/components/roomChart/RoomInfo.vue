@@ -1,221 +1,518 @@
 <template>
-<div>
-  <div class="chosing" v-if="choice">
-  <div>Select graph data period</div>
-  <button class="btnselect" v-on:click="monthly=true;choice=false;">Months</button>
-  <button class="btnselect" v-on:click="byHours=true;choice=false;">Hours</button>
-  </div>
-<div v-if="byHours">
-  </div>
-<div v-if="monthly">
-    <datepicker :format="customFormatter" v-model.lazy="dateStart"  :disabled-dates="disabledDates"></datepicker>
-    <datepicker :format="customFormatter" v-model.lazy="dateEnd"  :disabled-dates="disabledDates"></datepicker>
-    <div>{{moment(dateStart).format('MMM/DD/YY')}}</div>
-    
-    <div>Stored {{storedRoom}}</div>
-     <div class="controller-wrapper second animated slideInRight">
-        <custom-select
-          v-model.lazy="selectedValueType"
-         
-          placeholder="Value type ..."
-          class="style-chooser"
-         
-         :options="valueTypeArr"
-        ></custom-select>
-      </div>
-    <div id="content">
-     
-     <Chart
-        ref="skills_chart"
-        :chart-data="chartData"
-        :options="options">
-      </Chart>
+  <div class="body">
+    <div class="chosing" v-if="choice">
+      <div class="heading">Data filtering</div>
+      <button
+        v-on:mouseover="hoverOver"
+        v-on:mouseout="hoverOut"
+        v-bind:class="['margn','btnselect','animated bounceIn',borders]"
+        v-on:click="monthly=true;choice=false;"
+      >
+        <span>
+          <div>Months</div>
+        </span>
+      </button>
+
+      <button
+        v-on:mouseover="hoverOver2"
+        v-on:mouseout="hoverOut2"
+        v-bind:class="['btnselect, animated bounceIn',borders2]"
+        v-on:click="byHours=true;choice=false;"
+      >
+        <span>
+          <div>Days</div>
+        </span>
+      </button>
     </div>
- </div>
+    <transition
+      mode="out-in"
+      appear
+      enter-active-class="animated flipInX fast"
+      leave-active-class="animated flipOutX fast"
+    >
+      <div class="switch" key="day" v-if="byHours">
+        <div class="margintop"></div>
+        <br />
+
+        <datepicker
+          placeholder="Day ..."
+          class="datepicker"
+          :format="customFormatter"
+          v-model.lazy="singleDay"
+          :disabled-dates="disabledDates"
+        ></datepicker>
+        <div class="controller-wrapper">
+          <custom-select
+            v-model.lazy="singleDayValueType"
+            placeholder="Value type ..."
+            class="style-chooser"
+            :options="valueTypeArr"
+          ></custom-select>
+        </div>
+        <div v-if="!choice" class="room-wrapper third">
+          <custom-select
+            v-model.lazy="storedRoom"
+            placeholder="Room ..."
+            class="style-chooser"
+            :options="roomList"
+          ></custom-select>
+        </div>
+        <button class="btnselect" v-on:click="monthly=true;byHours=false;">
+          <span>Months</span>
+        </button>
+      </div>
+      <div class="switch" key="month" v-if="monthly">
+        <div class="margintop"></div>
+        <br />
+        <datepicker
+          class="datepicker"
+          placeholder="First date ..."
+          :format="customFormatter"
+          v-model.lazy="dateStart"
+          :disabled-dates="disabledDates"
+        ></datepicker>
+
+        <datepicker
+          class="datepicker"
+          placeholder="Last date ..."
+          :format="customFormatter"
+          v-model.lazy="dateEnd"
+          :disabled-dates="disabledDates"
+        ></datepicker>
+
+        <div class="controller-wrapper second">
+          <custom-select
+            v-model.lazy="selectedValueType"
+            placeholder="Value type ..."
+            class="style-chooser margleft"
+            :options="valueTypeArr"
+          ></custom-select>
+        </div>
+        <div v-if="!choice" class="room-wrapper third">
+          <custom-select
+            v-model.lazy="storedRoom"
+            placeholder="Room ..."
+            class="style-chooser margleft"
+            :options="roomList"
+          ></custom-select>
+        </div>
+        <button class="btnselect" v-on:click="byHours=true;monthly=false;">
+          <span>Days</span>
+        </button>
+      </div>
+    </transition>
+
+    <Chart v-if="!choice" ref="skills_chart" :chart-data="chartData" :options="options"></Chart>
   </div>
 </template>
 
 <script>
-import Chart from './Chart'
-
-import vSelect from 'vue-select';
+import Chart from "./Chart";
+import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
-import Datepicker from 'vuejs-datepicker';
-var moment=require('moment');
+import Datepicker from "vuejs-datepicker";
+var moment = require("moment");
 const options = {
-  responsive: true, 
-  maintainAspectRatio: false, 
+  responsive: true,
+  maintainAspectRatio: false,
+
+  legend: {
+    onClick: e => e.stopPropagation(),
+    labels: {
+      fontSize: 20
+    }
+  },
   animation: {
     animateRotate: false
   }
-}
+};
 export default {
-  
   components: {
-      vSelect,
-      Datepicker,
-      Chart
-    },
+    vSelect,
+    Datepicker,
+    Chart
+  },
   name: "app",
   data() {
     return {
-      storedRoom:'',
-      dateStart:'',
-      dateEnd:'',
-      hoursStart:'',
-      hoursEnd:'',
-      monthly:false,
-      byHours:false,
-      choice:true,
+      borders: "",
+      borders2: "",
+      dimVal: [],
+      hover: false,
+      arrSingleDay: [],
+      singleDayValueType: "",
+      singleDay: "",
+      storedRoom: "",
+      dateStart: "",
+      dateEnd: "",
+      hoursStart: "",
+      hoursEnd: "",
+      monthly: false,
+      byHours: false,
+      choice: true,
       moment,
-      valueTypeArr:[],
-      selectedValueType:'',
-      dataForGraph:[],
-      dataLabel:[],
-      dataGraph:[],
-     options, 
-        chartData: {
+      valueTypeArr: [],
+      selectedValueType: "",
+      dataForGraph: [],
+      dataLabel: [],
+      dataGraph: [],
+      roomList: [],
+
+      options,
+      chartData: {
         labels: [],
         datasets: [
           {
-           
+            pointBorderColor: "#6ccf71",
+            pointBackgroundColor: "#6ccf71",
+            pointHoverBackgroundColor: "#6ccf71",
+            pointHoverBorderColor: "#6ccf71",
+            pointBorderWidth: 7,
+            pointHoverRadius: 10,
+            pointHoverBorderWidth: 1,
+            pointRadius: 3,
+            backgroundColor: ["rgba(30, 143, 255, 0.281)"],
+            borderColor: ["rgba(228, 6, 127, 1)"],
+            borderWidth: 1,
+            label: "",
             data: []
           }
         ]
       },
-     
+
       disabledDates: {
-    to: new Date(2019, 11, 25), // Disable all dates up to specific date
-    from: new Date(Date.now()), // Disable all dates after specific date
-   
-  }
-      
-      
-      
+        to: new Date(2019, 11, 25), // Disable all dates up to specific date
+        from: new Date(Date.now()) // Disable all dates after specific date
+      }
     };
-  }
-  ,computed: {
-    currentDataSet () {
-      return this.chartData.datasets[0].data
+  },
+  computed: {
+    currentDataSet() {
+      return this.chartData.datasets[0].data;
     }
   },
-  watch:{
-    dateStart(){
-     this.intervalData();
-      
+  watch: {
+    storedRoom() {
+      this.dropDvalues();
+      console.log(this.valueTypeArr);
+      if (this.monthly) {
+        this.intervalData();
+      } else {
+        this.singleDayCheck();
+      }
     },
-    dateEnd(){
-     this.intervalData();
-       
-          
-    },
-    selectedValueType(){
-     this.intervalData();
-     console.log(this.selectedValueType);
-     if(this.selectedValueType===null){
-      console.log('lul');
-       this.dataGraph=[];
-       this.dataLabel=[];
+    monthly() {
+      this.dataGraph = [];
+      this.dataLabel = [];
+      this.selectedValueType = "";
+      this.singleDayValueType = "";
+      this.dateStart = "";
+      this.dateEnd = "";
+      this.singleDay = "";
       this.refreshChart();
-     }
+    },
+    singleDay() {
+      this.singleDayCheck();
+    },
+    singleDayValueType() {
+      this.singleDayCheck();
+      if (this.singleDayValueType === null) {
+        this.singleDayValueType = "";
+      }
+    },
+    dateStart() {
+      this.intervalData();
+    },
+    dateEnd() {
+      this.intervalData();
+    },
+    selectedValueType() {
+      this.intervalData();
+      if (this.selectedValueType === null) {
+        this.selectedValueType = "";
+        this.dataGraph = [];
+        this.dataLabel = [];
+        this.refreshChart();
+      }
     }
   },
   methods: {
-    
-    updateChart () {
-      this.$refs.skills_chart.update();
+    dropDvalues() {
+      this.$http
+        .get(
+          "http://localhost:3000/api/data/valuetypes/" + this.storedRoom + ""
+        )
+        .then(response => {
+          return response.json();
+        })
+        .then(data => {
+          const resultArray = [];
+          for (let key in data) {
+            resultArray.push(data[key]);
+          }
+          var count = 0;
+          this.valueTypeArr = [];
+          for (let index = 0; index < resultArray[1].length; index++) {
+            if (
+              resultArray[1][index].valuetype === "Illuminance" &&
+              count === 0
+            ) {
+              this.valueTypeArr.push(resultArray[1][index].valuetype);
+            } else if (resultArray[1][index].valuetype !== "Illuminance") {
+              this.valueTypeArr.push(resultArray[1][index].valuetype);
+            }
+            if (resultArray[1][index].valuetype === "Illuminance") {
+              count++;
+            }
+          }
+        });
+    },
+    hoverOver() {
+      this.borders = "borders";
+    },
+    hoverOut() {
+      this.borders = "";
+    },
+    hoverOver2() {
+      this.borders2 = "borders";
+    },
+    hoverOut2() {
+      this.borders2 = "";
+    },
+    handler() {
+      this.$router.go(-1);
+    },
+    graphDataManipulation(array, intervalForAvg) {
+      var temparr = [];
+      var countHours = 0;
+      var countDates = 0;
+      var arrForAvg = [];
+      var avgData = 0;
+      var tempForRestData = {};
+      var tempHold = array;
+      for (let index = 0; index < tempHold.length; index++) {
+        if (countHours === 0) {
+          tempForRestData = {};
+          tempForRestData = {
+            controllername: tempHold[index].controllername,
+            dimension: tempHold[index].dimension,
+            room: tempHold[index].room,
+            sensorname: tempHold[index].sensorname,
+            valuetype: tempHold[index].valuetype,
+            data: tempHold[index].data
+          };
+
+          temparr.push({
+            date: tempHold[index].date,
+            data: "",
+            controllername: "",
+            dimension: "",
+            room: "",
+            sensorname: "",
+            valuetype: ""
+          });
+        }
+
+        if (
+          Math.abs(
+            new Date(temparr[countDates].date) - new Date(tempHold[index].date)
+          ) /
+            36e5 >
+          intervalForAvg
+        ) {
+          var total = 0;
+          for (var i = 0; i < arrForAvg.length; i++) {
+            total += arrForAvg[i];
+          }
+          var avg = total / arrForAvg.length;
+          temparr[countDates].data = avg;
+          temparr[countDates].room = tempForRestData.room;
+          temparr[countDates].controllername = tempForRestData.controllername;
+          temparr[countDates].dimension = tempForRestData.dimension;
+          temparr[countDates].sensorname = tempForRestData.sensorname;
+          temparr[countDates].valuetype = tempForRestData.valuetype;
+
+          arrForAvg = [];
+          countHours = 0;
+          countDates++;
+        } else {
+          arrForAvg.push(tempHold[index].data);
+          countHours++;
+        }
+      }
+
+      return (temparr = temparr.filter(item => item.data !== ""));
+    },
+    singleDayCheck() {
+      if (this.singleDay !== "" && this.singleDayValueType !== "") {
+        this.singleDayData();
+      }
+    },
+    sameDay(d1, d2) {
+      return (
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate()
+      );
+    },
+    updateChart() {
+      if (this.$refs.skills_chart) {
+        this.$refs.skills_chart.update();
+      }
     },
     refreshChart() {
-      const currentDataset = this.chartData.datasets[0]
-      this.chartData.labels=this.dataLabel
-      console.log('last push')
-      currentDataset.data=this.dataGraph;
+      const currentDataset = this.chartData.datasets[0];
+
+      this.chartData.labels = this.dataLabel;
+      if (this.selectedValueType != "" || this.singleDayValueType != "") {
+        var compare =
+          this.selectedValueType.toLowerCase() +
+          this.singleDayValueType.toLowerCase();
+        let dim = this.dimVal.filter(
+          m => m.valuetype.toLowerCase() === compare
+        );
+        currentDataset.label =
+          this.selectedValueType +
+          this.singleDayValueType +
+          ", " +
+          dim[0].dimension;
+      } else {
+        currentDataset.label = "";
+      }
+
+      currentDataset.data = this.dataGraph;
       this.updateChart();
     },
-     
-   async intervalData(){
-     try{
+    async singleDayData() {
+      try {
+        await this.$http
+          .get(
+            "http://localhost:3000/api/data/" +
+              this.storedRoom +
+              "/" +
+              moment(this.singleDay).format("YYYY-MM-DD") +
+              "/" +
+              this.singleDayValueType +
+              ""
+          )
+          .then(response => {
+            return response.json();
+          })
+          .then(data => {
+            const resultArray = [];
+            for (let key in data) {
+              resultArray.push(data[key]);
+            }
 
-     
-        if(this.dateStart!=='' && this.dateEnd!==''){
-       await this.$http
-      .get('http://localhost:3000/api/data/room/interval/'+moment(this.dateStart).format('MMM DD YY') +'/'+moment(this.dateEnd).format('MMM DD YY') +'')
-      .then(response => {
-        return response.json();
-      })
-      .then(data => {
-        const resultArray = [];
-        for (let key in data) {
-          resultArray.push(data[key]);
-        }
-      
-       this.dataChart=resultArray[1];
-
-      });
-        
-            
-
-      }}catch(error){
+            this.arrSingleDay = resultArray[1];
+          });
+      } catch (error) {
         console.log(error);
       }
-      console.log(this.dataChart);
-      if(this.dateStart!=='' && this.dateEnd!=='' && this.selectedValueType!=='' && this.selectedValueType!==null){
-        
-          let filtered = this.dataChart;
-              
-      
-      if (this.selectedValueType) {
-        filtered = this.dataChart.filter(
-          m => m.valuetype.toLowerCase()===this.selectedValueType.toLowerCase()
-        );
-      }
-     
 
-      
-      if (this.storedRoom) {
-        filtered = filtered.filter(
-          m => m.room.toLowerCase()===this.storedRoom.toLowerCase()
-        );
-      }
-    
-      
-      console.log(filtered);
-      filtered.sort(function(a, b) {return a[2] - b[2];});
+      var temp = this.graphDataManipulation(this.arrSingleDay, 0.1);
 
-
-     
-      var temp=filtered;
-      this.dataGraph=[];
-      this.dataLabel=[];
+      this.dataGraph = [];
+      this.dataLabel = [];
       for (let index = 0; index < temp.length; index++) {
-        this.dataGraph.push(temp[index].data);
-        this.dataLabel.push(temp[index].date);
-      
-      
+        this.dataGraph.push(temp[index].data.toFixed(2));
+        this.dataLabel.push(
+          moment(temp[index].date).format("YYYY-MM-DD, HH:mm:ss")
+        );
       }
+      this.refreshChart();
+    },
+    async intervalData() {
+      try {
+        if (this.dateStart !== "" && this.dateEnd !== "") {
+          await this.$http
+            .get(
+              "http://localhost:3000/api/data/room/interval/" +
+                moment(this.dateStart).format("YYYY-MM-DD") +
+                "/" +
+                moment(this.dateEnd).format("YYYY-MM-DD") +
+                ""
+            )
+            .then(response => {
+              return response.json();
+            })
+            .then(data => {
+              const resultArray = [];
+              for (let key in data) {
+                resultArray.push(data[key]);
+              }
+
+              this.dataChart = resultArray[1];
+              console.log("this.dataChart");
+              console.log(this.dataChart);
+            });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      if (
+        this.dateStart !== "" &&
+        this.dateEnd !== "" &&
+        this.selectedValueType !== "" &&
+        this.selectedValueType !== null
+      ) {
+        let filtered = this.dataChart;
+
+        if (this.selectedValueType) {
+          filtered = this.dataChart.filter(
+            m =>
+              m.valuetype.toLowerCase() === this.selectedValueType.toLowerCase()
+          );
+        }
+
+        if (this.storedRoom) {
+          filtered = filtered.filter(
+            m => m.room.toLowerCase() === this.storedRoom.toLowerCase()
+          );
+        }
+
+        filtered.sort(function(a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return (
+            new Date(moment(a.date).format("YYYY-MM-DD")) -
+            new Date(moment(b.date).format("YYYY-MM-DD"))
+          );
+        });
+        var temp = this.graphDataManipulation(filtered, 4); //keskmised andmed ühe päeva jaoks
+        temp.sort(function(a, b) {
+          return (
+            new Date(moment(a.date).format("YYYY-MM-DD")) -
+            new Date(moment(b.date).format("YYYY-MM-DD"))
+          );
+        });
+
+        this.dataGraph = [];
+        this.dataLabel = [];
+        for (let index = 0; index < temp.length; index++) {
+          this.dataGraph.push(temp[index].data.toFixed(2));
+          this.dataLabel.push(
+            moment(temp[index].date).format("YYYY-MM-DD, HH:mm:ss")
+          );
+        }
         this.refreshChart();
       }
-
     },
-       customFormatter(date) {
-      return moment(date).format('MMM/DD/YY');
+    customFormatter(date) {
+      return moment(date).format("MMM/DD/YY");
     }
-    
-      
-    },
-   
-    
-    
-    
-   
-  
+  },
+
+  beforeDestroy() {
+    window.removeEventListener("unload", this.handler);
+  },
+  mounted() {
+    window.addEventListener("unload", this.handler);
+  },
   created() {
-     
-this.storedRoom= this.$store.getters.giveroom;
-      
-     
     this.$http
-      .get("http://localhost:3000/api/valuetypes")
+      .get("http://localhost:3000/api/dimensions/valuetypes")
       .then(response => {
         return response.json();
       })
@@ -223,56 +520,60 @@ this.storedRoom= this.$store.getters.giveroom;
         const resultArray = [];
         for (let key in data) {
           resultArray.push(data[key]);
-          
         }
-        var count=0;
-       for (let index = 0; index < resultArray[1].length; index++) {
-        
-         if(resultArray[1][index].valuetype==='Illuminance' && count===0){
-          this.valueTypeArr.push(resultArray[1][index].valuetype);    
-
-         }else if(resultArray[1][index].valuetype!=='Illuminance' ){
-          this.valueTypeArr.push(resultArray[1][index].valuetype);    
-         }
-          if(resultArray[1][index].valuetype==='Illuminance'){
-            count++;
-         }
-       }
-     
+        this.dimVal = resultArray[1];
       });
-  
-  } 
+    this.storedRoom = this.$store.getters.giveroom;
+    this.roomList = this.$store.getters.giveRooms;
+  }
 };
 </script>
 
 <style scoped>
+.heading {
+  margin-top: 22px;
+  margin-bottom: 17px;
+  font-size: 30px;
+}
+.chosing {
+  text-align: center;
+}
+.switch button {
+  float: right !important;
+}
 .style-chooser .vs__search::placeholder,
-  .style-chooser .vs__dropdown-toggle,
-  .style-chooser .vs__dropdown-menu {
-    background: #dfe5fb;
-    border: none;
-    color: #394066;
-    text-transform: lowercase;
-    font-variant: small-caps;
-    height: 50px;
-    width: 50px;
-  }
-body {
-  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
-  text-rendering: optimizelegibility;
-  -moz-osx-font-smoothing: grayscale;
-  -moz-text-size-adjust: none;
+.style-chooser .vs__dropdown-toggle,
+.style-chooser .vs__dropdown-menu {
+  background: #dfe5fb;
+  border: none;
+  color: #394066;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  height: 50px;
+  width: 50px;
 }
 
-h1,.muted {
+.margleft {
+  margin-left: 25px;
+}
+h1,
+.muted {
   color: #2c3e5099;
 }
-
+.body {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 1200px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
 h1 {
   font-size: 26px;
   font-weight: 600;
 }
-
+.margn {
+  margin-right: 20px;
+}
 #app {
   max-width: 30em;
   margin: 1em auto;
@@ -283,7 +584,88 @@ h1 {
   background-color: #ffffff;
   padding: 20px;
 }
-.btnselect{
+.btnselect {
   display: inline-block;
+}
+
+button {
+  background-color: rgba(30, 143, 255, 0.685);
+  text-decoration: none;
+  outline: 0;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 30px;
+
+  cursor: pointer;
+  width: 200px;
+  border-radius: 13px;
+  transition: 0.3s;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.wrapper {
+  font-size: 25px;
+}
+.datepicker >>> input {
+  width: 145px;
+  height: 50px;
+  font-size: 20px;
+  margin-bottom: 5px;
+  display: inline-block;
+  text-align: center;
+  border-radius: 13px;
+  border: solid;
+  cursor: pointer;
+  border-color: rgba(30, 143, 255, 0.685);
+  background: linear-gradient(to right, #8eeb92 50%, white 50%);
+  background-size: 200% 100%;
+  background-position: right bottom;
+  color: black;
+  font-weight: bold;
+
+  transition: all 2s ease;
+}
+.datepicker >>> input:hover {
+  background-position: left bottom;
+  color: black;
+
+  font-weight: bold;
+}
+
+.datepicker {
+  display: inline-block;
+}
+button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+button span:after {
+  content: "\00bb";
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+button:hover span {
+  padding-right: 25px;
+}
+
+button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+.borders {
+  background-color: #8eeb92;
+  color: #e4067f;
+}
+.margintop {
+  margin-top: 20px;
 }
 </style>

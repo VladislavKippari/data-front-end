@@ -24,11 +24,11 @@ export default {
         classes: []
       }
     },methods: {
-  	hoverOver: function() {
+  	hoverOver() {
     
     	this.classes = ['animated', 'rubberBand']
     },
-    hoverOut: function() {
+    hoverOut() {
     
     	this.classes = []
     },
@@ -39,7 +39,6 @@ export default {
 
 
 <style scoped>
-@import url(https://fonts.googleapis.com/css?family=Raleway);
 
 
 .bar img{
@@ -62,7 +61,6 @@ nav {
    border-radius: 7px;
   padding: 24px;
   text-align: center;
-  font-family: Raleway;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
 
@@ -93,7 +91,7 @@ position: absolute;
 }
 
   .active a{
-     transition: 0.4s;
+     transition: 0.5s;
  
   text-decoration: none;
  

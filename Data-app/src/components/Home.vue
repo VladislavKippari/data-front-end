@@ -155,6 +155,7 @@ export default {
         });
         this.roomList.sort(collator.compare);
       });
+      this.$store.commit('roomsFill',this.roomList);
     //massiivi täitmine andmetega igale ruumile
     this.$http
       .get("http://localhost:3000/api/controller/sensor/room")

@@ -1,24 +1,24 @@
 <template>
 
 
- <div v-on:mouseleave="hover = false" class="  animated flipInX">
+ <div class="animated flipInX " v-on:mouseout="hoverOut" >
         
-             
-    <div v-on:mouseover="hover = true" v-if="!hover" class="item fontb" key="{{room}}">{{room}}</div>
-   <router-link class="nodecor" v-bind:to="'/rooms/'+ room">   <div   v-on:click="selectedRoom(room)"  v-on:mouseleave="hover = false" v-if="hover" class="item colr animated jello" key="{{valuetype}}"> 
+    <div  v-on:mouseenter="hover = true" v-if="!hover" class="item fontb" key="{{room}}">{{room}}</div>
+   <router-link class="nodecor " activeClass="active" to="/roominfo"   >   <div v-on:mouseover="hoverOver"  v-on:mouseleave="hover = false" v-on:mouseenter="hover = true"  v-on:click="selectedRoom(room)"  v-if="hover" :class="['item', 'colr',classes]" key="{{valuetype}}"> 
      
      
-        <section>
+        <section >
             <div class="block centr">  {{room}} </div>
     <div class="block ">{{valuetype1}} - {{value1}} {{dimension1}}</div>
     <div class="block">{{valuetype2}} - {{value2}} {{dimension2}}</div>
     <div class="block">{{valuetype3}} - {{value3}} {{dimension3}}</div>
   </section>
-       
+      
        </div>
 
   </router-link> 
       </div>
+    
 </template>
 <script>
 
@@ -27,7 +27,7 @@ import {mapMutations} from 'vuex';
 export default {
   data(){
     return{
-     
+    classes:[],
  hover:false
     }
   },
@@ -36,8 +36,23 @@ export default {
     
        ...mapMutations([
           'selectedRoom'
-       ])
+       ]),
+       hoverOver() {
     
+    	this.classes = ['animated', 'jello']
+    },
+    hoverOut() {
+    
+    	this.classes = [];
+    }
+    
+  },watch:{
+    hover(){
+      console.log(this.hover)
+    }
+  },created(){
+          console.log(this.hover)
+
   }
 };
 </script>
@@ -47,7 +62,7 @@ export default {
   text-decoration: none;
 }
 .item {
-  background-color: rgba(30, 143, 255, 0.685);
+  background-color: rgba(30, 143, 255, 0.685); 
   color: white;
   height: 200px;
   width: 100%;

@@ -5,9 +5,9 @@ import VueResource from 'vue-resource';
 import { routes } from './router/index';
 import store from './store/store';
 import vSelect from 'vue-select';
-
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 Vue.use(VueResource);
-
 Vue.component('v-select', vSelect)
 Vue.component('custom-select', {
   extends: vSelect,
@@ -15,8 +15,12 @@ Vue.component('custom-select', {
     maybeAdjustScroll: () => false
   }
 })
-
-
+Vue.http.interceptors.push((request, next) => {
+  NProgress.start();
+  next((response)=>{
+      NProgress.done();
+    });
+});
 const router = new VueRouter({
   mode: 'history',
   routes
@@ -24,6 +28,7 @@ const router = new VueRouter({
 
 new Vue({
   el: '#app',
+  
   router,
   store,
   components: { App },

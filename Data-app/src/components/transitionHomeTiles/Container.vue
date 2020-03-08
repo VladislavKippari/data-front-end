@@ -15,7 +15,7 @@ export default {
 .wrapper {
   display: grid;
   grid-auto-columns: 1fr;
-  grid-gap: 20px;
+  grid-gap: 50px;
   padding: 40px;
  
 }

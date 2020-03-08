@@ -18,11 +18,17 @@ export default {
 </script>
 
 <style>
+@import url(https://fonts.googleapis.com/css?family=Raleway);
+
+*{
+    font-family: Raleway;
+}
 .body {
   margin-right: auto;
   margin-left:  auto;
   max-width: 1200px;
   padding-right: 10px;
   padding-left:  10px;
+
 }
 </style>

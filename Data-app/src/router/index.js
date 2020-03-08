@@ -6,7 +6,8 @@ Vue.use(Router)
 
 export const routes = [
     { path: '/rooms', component: Home },
-    {path:'/rooms/:selectedRoom',component: RoomInfo},
+    {path:'/roominfo',component: RoomInfo},
+    
     {path:'*',redirect:'/rooms'},
     
 
