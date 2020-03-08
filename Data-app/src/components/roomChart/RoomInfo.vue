@@ -3,9 +3,8 @@
     <div class="chosing" v-if="choice">
       <div class="heading">Data filtering</div>
       <button
-        v-on:mouseover="hoverOver"
-        v-on:mouseout="hoverOut"
-        v-bind:class="['margn','btnselect','animated bounceIn',borders]"
+       
+       class="margn btnselect animated bounceIn hvring"
         v-on:click="monthly=true;choice=false;"
       >
         <span>
@@ -14,9 +13,8 @@
       </button>
 
       <button
-        v-on:mouseover="hoverOver2"
-        v-on:mouseout="hoverOut2"
-        v-bind:class="['btnselect, animated bounceIn',borders2]"
+      
+        class="btnselect animated bounceIn hvring"
         v-on:click="byHours=true;choice=false;"
       >
         <span>
@@ -45,7 +43,7 @@
           <custom-select
             v-model.lazy="singleDayValueType"
             placeholder="Value type ..."
-            class="style-chooser"
+            class="style-chooser margleft"
             :options="valueTypeArr"
           ></custom-select>
         </div>
@@ -53,11 +51,11 @@
           <custom-select
             v-model.lazy="storedRoom"
             placeholder="Room ..."
-            class="style-chooser"
+            class="style-chooser margleft"
             :options="roomList"
           ></custom-select>
         </div>
-        <button class="btnselect" v-on:click="monthly=true;byHours=false;">
+        <button class="btnselect hvring" v-on:click="monthly=true;byHours=false;">
           <span>Months</span>
         </button>
       </div>
@@ -96,7 +94,7 @@
             :options="roomList"
           ></custom-select>
         </div>
-        <button class="btnselect" v-on:click="byHours=true;monthly=false;">
+        <button class="btnselect hvring" v-on:click="byHours=true;monthly=false;">
           <span>Days</span>
         </button>
       </div>
@@ -267,18 +265,7 @@ export default {
           }
         });
     },
-    hoverOver() {
-      this.borders = "borders";
-    },
-    hoverOut() {
-      this.borders = "";
-    },
-    hoverOver2() {
-      this.borders2 = "borders";
-    },
-    hoverOut2() {
-      this.borders2 = "";
-    },
+
     handler() {
       this.$router.go(-1);
     },
@@ -609,6 +596,14 @@ button {
 .wrapper {
   font-size: 25px;
 }
+.hvring{
+    background: linear-gradient(to right, #8eeb92 50%, rgba(30, 143, 255, 0.685) 50%);
+  background-size: 200% 100%;
+  background-position: right bottom;
+  color: white;
+  font-weight: bold;
+   transition: all 1.5s ease;
+}
 .datepicker >>> input {
   width: 145px;
   height: 50px;
@@ -625,8 +620,20 @@ button {
   background-position: right bottom;
   color: black;
   font-weight: bold;
-
+ text-decoration: none;
   transition: all 2s ease;
+}
+.hvring:hover{
+  background-position: left bottom;
+}
+.datepicker >>> input:focus{
+  outline: none;
+  
+
+}
+.hvring:hover span{
+color: black;
+transition:1s;
 }
 .datepicker >>> input:hover {
   background-position: left bottom;
@@ -637,12 +644,15 @@ button {
 
 .datepicker {
   display: inline-block;
+    text-decoration: none;
+
 }
+
 button span {
   cursor: pointer;
   display: inline-block;
   position: relative;
-  transition: 0.5s;
+  transition: 1s;
 }
 button span:after {
   content: "\00bb";
@@ -650,21 +660,20 @@ button span:after {
   opacity: 0;
   top: 0;
   right: -20px;
-  transition: 0.5s;
+  transition: 1s;
 }
 button:hover span {
   padding-right: 25px;
+  color:#E4067F;
 }
 
 button:hover span:after {
   opacity: 1;
   right: 0;
+  color:#E4067F;
 }
 
-.borders {
-  background-color: #8eeb92;
-  color: #e4067f;
-}
+
 .margintop {
   margin-top: 20px;
 }
