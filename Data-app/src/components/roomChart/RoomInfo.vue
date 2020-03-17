@@ -133,8 +133,7 @@ export default {
   name: "app",
   data() {
     return {
-      borders: "",
-      borders2: "",
+     
       dimVal: [],
       hover: false,
       arrSingleDay: [],
@@ -200,6 +199,7 @@ export default {
       }
     },
     monthly() {
+      //tuhista elementid sisestamiseks
       this.dataGraph = [];
       this.dataLabel = [];
       this.selectedValueType = "";
@@ -236,6 +236,7 @@ export default {
   },
   methods: {
     dropDvalues() {
+      //andme tüübi rippmenüüsse salvestamine vastavalt ruumi
       this.$http
         .get(
           "http://localhost:3000/api/data/valuetypes/" + this.storedRoom + ""
@@ -269,6 +270,7 @@ export default {
     handler() {
       this.$router.go(-1);
     },
+    //keskmise väärtuse loendamine määratud massiivis ARRAY iga minut või tund sõltuvalt INTERVALFORAVG
     graphDataManipulation(array, intervalForAvg) {
       var temparr = [];
       var countHours = 0;
@@ -574,7 +576,9 @@ h1 {
 .btnselect {
   display: inline-block;
 }
-
+button::-moz-focus-inner {
+  border: 0;
+}
 button {
   background-color: rgba(30, 143, 255, 0.685);
   text-decoration: none;

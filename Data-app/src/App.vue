@@ -2,16 +2,18 @@
  <div class="body">
         <app-header></app-header>
          <router-view></router-view>
+         <app-footer></app-footer>
     </div>
 </template>
 
 <script>
 import Header from './components/Header';
-
+import Footer from './components/Footer';
 
 export default {
   components:{
-'app-header':Header
+'app-header':Header,
+'app-footer':Footer
 
   }
 };
@@ -29,6 +31,7 @@ export default {
   max-width: 1200px;
   padding-right: 10px;
   padding-left:  10px;
+  margin-bottom: 35px;
 
 }
 </style>

@@ -3,7 +3,7 @@
 
  <div class="animated flipInX " v-on:mouseout="hoverOut" >
         
-    <div  v-on:mouseenter="hover = true" v-if="!hover" class="item fontb" key="{{room}}">{{room}}</div>
+    <div  v-on:mouseenter="hover = true" v-if="!hover" class="item fontb nodecor" key="{{room}}">{{room}}</div>
    <router-link class="nodecor " activeClass="active" to="/roominfo"   >   <div v-on:mouseover="hoverOver"  v-on:mouseleave="hover = false" v-on:mouseenter="hover = true"  v-on:click="selectedRoom(room)"  v-if="hover" :class="['item', 'colr',classes]" key="{{valuetype}}"> 
      
      
@@ -39,7 +39,7 @@ export default {
        ]),
        hoverOver() {
     
-    	this.classes = ['animated', 'jello']
+      this.classes = ['animated', 'jello slow']
     },
     hoverOut() {
     
@@ -60,6 +60,10 @@ export default {
 <style  scoped>
 .nodecor{
   text-decoration: none;
+}
+*:focus{
+    outline: none;
+
 }
 .item {
   background-color: rgba(30, 143, 255, 0.685); 
