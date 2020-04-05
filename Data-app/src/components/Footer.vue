@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    "{{quotes[1]}}"
+    <span class="textColor">"{{quotes[1]}}"</span>
     
     <br/><strong>{{quotes[2]}}</strong>
     <strong v-if='quotes[2]===""'>Unknown</strong>
@@ -39,17 +39,22 @@ export default {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 35px;
   padding: 1rem;
-  background-color: rgba(30, 143, 255, 0.685);
+  background-color: dodgerblue;
   text-align: left;
+  
+  z-index: 10000000;
+
 }
 .ga_sep{
     
-    
+    padding-right: 5px;
     position: relative;
     display:inline;
     float: right;
+}
+.textColor{
+  color: white;
 }
 
 </style>

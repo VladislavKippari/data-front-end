@@ -46,7 +46,8 @@
             class="style-chooser margleft"
             :options="valueTypeArr"
           ></custom-select>
-        </div>
+        </div>          
+
         <div v-if="!choice" class="room-wrapper third">
           <custom-select
             v-model.lazy="storedRoom"
@@ -101,15 +102,52 @@
     </transition>
 
     <Chart v-if="!choice" ref="skills_chart" :chart-data="chartData" :options="options"></Chart>
+    
+   <div v-if="!choice">
+    
+  <div>Show current data: <toggle-button class="toBack" v-model="myDataVariable" :labels="{checked: 'On', unchecked: 'Off'}"/></div>
+    
+   </div>
+    <transition 
+    appear
+    mode="in-out"
+    enter-active-class="animated fadeIn faster"
+    leave-active-class="animated fadeOut faster"
+
+    >
+   <div v-if="!choice && myDataVariable" class="animated fadeIn">
+       <div class="title2"><b class="title">Current Data</b></div>
+         <transition-group name="fade"
+     >
+     <div   v-for="(holl,index) in currentData"  :key="holl.id"  class="listStyle" 
+     :style="{backgroundColor:colors[index % colors.length]}"><b>{{holl.valuetype}}</b> - {{holl.data}}, <b class="blackColor"> Controller</b>{{holl.controller}}, <b class="blackColor"> Sensor</b> {{holl.sensor}}</div>
+           </transition-group>
+
+   </div>
+    </transition>
+    
+
+    
+
+ 
+
   </div>
 </template>
 
 <script>
+import {mapMutations} from 'vuex';
+import {mapGetters} from 'vuex';
+import {mapState} from 'vuex';
+import Pusher from 'pusher-js';
+import store from '../../store/store';
 import Chart from "./Chart";
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import Datepicker from "vuejs-datepicker";
 var moment = require("moment");
+let arrayy=[]
+let tempArray=[]
+
 const options = {
   responsive: true,
   maintainAspectRatio: false,
@@ -124,18 +162,28 @@ const options = {
     animateRotate: false
   }
 };
+
+ 
+
 export default {
   components: {
     vSelect,
     Datepicker,
     Chart
+    
+    
   },
   name: "app",
   data() {
     return {
-     
+      testy:'bruh',
+   holder:store.getters.giveTrigger,
+    currentData:[],
       dimVal: [],
+      myDataVariable:false,
+            componentKey: 0,
       hover: false,
+       colors: ["#8eeb92", "white"],
       arrSingleDay: [],
       singleDayValueType: "",
       singleDay: "",
@@ -184,12 +232,29 @@ export default {
     };
   },
   computed: {
+   
+    
     currentDataSet() {
       return this.chartData.datasets[0].data;
-    }
+    },
+    
   },
   watch: {
+    holder(){
+       this.showCurrentData()
+    },
+    choice(){
+    this.showCurrentData()
+    },
+    myDataVariable(){
+      console.log(this.myDataVariable)
+    },
     storedRoom() {
+ this.showCurrentData()
+    
+     
+     
+    
       this.dropDvalues();
       console.log(this.valueTypeArr);
       if (this.monthly) {
@@ -198,6 +263,7 @@ export default {
         this.singleDayCheck();
       }
     },
+    
     monthly() {
       //tuhista elementid sisestamiseks
       this.dataGraph = [];
@@ -225,6 +291,7 @@ export default {
       this.intervalData();
     },
     selectedValueType() {
+      console.log(this.selectedValueType)
       this.intervalData();
       if (this.selectedValueType === null) {
         this.selectedValueType = "";
@@ -235,6 +302,31 @@ export default {
     }
   },
   methods: {
+
+   
+      showCurrentData(){
+           this.currentData.splice(0);
+      var filtered=this.holder.filter(m =>
+          m.room.includes(this.storedRoom)
+        );
+      for (let index = 0; index <  filtered.length; index++) {
+          this.currentData.push({
+              valuetype: "",
+              controller:"",
+              sensor:"",
+              data:"",
+              id:""
+           
+            });
+          
+        this.currentData[index].valuetype=(filtered[index].valuetype)
+        this.currentData[index].data=(filtered[index].data)
+        this.currentData[index].controller=(' - '+filtered[index].controllername)
+        this.currentData[index].sensor=(' - '+filtered[index].sensorname)
+        this.currentData[index].id=(' - '+filtered[index].id)
+      }
+      },
+    
     dropDvalues() {
       //andme tüübi rippmenüüsse salvestamine vastavalt ruumi
       this.$http
@@ -266,6 +358,23 @@ export default {
           }
         });
     },
+     trigyr() {
+      this.$http
+        .get(
+          "http://localhost:3000/bruh"
+        )
+        .then(response => {
+          return response.json();
+        })
+        .then(data => {
+         console.log(data+"are you here>?")
+            for (let key in data) {
+            console.log(data[key]);
+          }
+        });
+    }
+    ,
+
 
     handler() {
       this.$router.go(-1);
@@ -497,6 +606,9 @@ export default {
     window.removeEventListener("unload", this.handler);
   },
   mounted() {
+   console.log(store.getters.giveTrigger)
+
+
     window.addEventListener("unload", this.handler);
   },
   created() {
@@ -514,6 +626,7 @@ export default {
       });
     this.storedRoom = this.$store.getters.giveroom;
     this.roomList = this.$store.getters.giveRooms;
+
   }
 };
 </script>
@@ -676,9 +789,39 @@ button:hover span:after {
   right: 0;
   color:#E4067F;
 }
-
+.listStyle{
+          color: black;
+          font-size:22px;
+          text-align: center;
+}
 
 .margintop {
   margin-top: 20px;
 }
+
+b{
+color:black;
+  font-size: 22px;
+}
+.title2{
+  text-align: center;
+  margin-bottom: 10px;
+}
+.title{
+color:black;
+text-align: center;
+  font-size: 35px;
+  
+}
+.fade-enter-active, .fade-leave-active {
+  transition: all .2s;
+}
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+}
+.fade-enter-active {
+  transition-delay: .2s;
+}
+
+
 </style>

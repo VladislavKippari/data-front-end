@@ -1,6 +1,7 @@
   const state={
     room:'',
-    rooms:[]
+    rooms:[],
+    fromTrigger:[]
 }
  const mutations={
     selectedRoom:(state,payload)=>{
@@ -8,6 +9,22 @@
     },
     roomsFill:(state,payload)=>{
         state.rooms=payload;
+    },
+    triggerFill:(state,payload)=>{
+        
+        state.fromTrigger.push(payload);
+    },
+    triggerTest:(state,payload)=>{
+        
+        state.fromTrigger=[];
+    },
+    triggerClear:(state)=>{
+        
+        state.fromTrigger.splice(0);
+    },
+    triggerSplice:(state)=>{
+        
+        state.fromTrigger.splice(-1,1);
     }
 }
 const getters={
@@ -16,7 +33,10 @@ const getters={
     },
     giveRooms:state=>{
         return state.rooms;
-    }
+    },
+    giveTrigger:state=>{
+        return state.fromTrigger;
+    },
 }
 export default{
     state,

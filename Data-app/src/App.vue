@@ -1,7 +1,7 @@
 <template>
  <div class="body">
         <app-header></app-header>
-         <router-view></router-view>
+         <router-view class="test"></router-view>
          <app-footer></app-footer>
     </div>
 </template>
@@ -10,6 +10,7 @@
 import Header from './components/Header';
 import Footer from './components/Footer';
 
+ 
 export default {
   components:{
 'app-header':Header,
@@ -32,6 +33,10 @@ export default {
   padding-right: 10px;
   padding-left:  10px;
   margin-bottom: 35px;
+}
+.test{
+  padding-bottom:50px; 
+ 
 
 }
 </style>

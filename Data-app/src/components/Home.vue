@@ -41,20 +41,22 @@
           :valuetype1="room.valuetype.find(item => item === valuetypeOtp1)"
           :valuetype2="room.valuetype.find(item => item=== valuetypeOtp2)"
           :valuetype3="room.valuetype.find(item => item === valuetypeOtp3)"
-          :value1="room.avg[room.valuetype.indexOf(valuetypeOtp1)]"
-          :value2="room.avg[room.valuetype.indexOf(valuetypeOtp2)]"
-          :value3="room.avg[room.valuetype.indexOf(valuetypeOtp3)]"
+         :value1="pusherArray.find(x => x.valuetype === valuetypeOtp1 && x.room===room.room) ? pusherArray.find(x => x.valuetype === valuetypeOtp1 && x.room===room.room).data:''"
+        :value2="pusherArray.find(x => x.valuetype === valuetypeOtp2 && x.room===room.room) ? pusherArray.find(x => x.valuetype === valuetypeOtp2 && x.room===room.room).data:''"
+         :value3="pusherArray.find(x => x.valuetype === valuetypeOtp3 && x.room===room.room) ? pusherArray.find(x => x.valuetype === valuetypeOtp3 && x.room===room.room).data:''"
           :dimension1="room.dimension.find(item => item === dimensionOtp1)"
           :dimension2="room.dimension.find(item => item === dimensionOtp2)"
           :dimension3="room.dimension.find(item => item === dimensionOtp3)"
         ></Item>
       </div>
     </Container>
-  
+
   </div>
 </template>
 
 <script>
+
+import store from '../store/store';
 import Container from "./transitionHomeTiles/Container";
 import Item from "./transitionHomeTiles/Item";
 import vSelect from "vue-select";
@@ -69,12 +71,13 @@ export default {
   data() {
     return {
       hover: false,
+      pusherArray:store.getters.giveTrigger,
       valuetypeOtp1:'T',
       valuetypeOtp2:'Humidity',       
       valuetypeOtp3:'Illuminance',    //keskmised andmete kuvamiseks
       dimensionOtp1:'C',
       dimensionOtp2:'%',
-      dimensionOtp3:'lux',
+      dimensionOtp3:'LUX',
       roomSearch: "", //valitud tuppa rippmenuust
       sensorSearch: "", //valitud sensor rippmenuust
       controllerSearch: "", //valitud kontroller rippmenuust

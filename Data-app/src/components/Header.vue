@@ -1,7 +1,7 @@
 <template>
 <div >
 <div class="logo" v-on:mouseover="hoverOver" v-on:mouseout="hoverOut">
- <router-link to="/rooms"   tag="a"><a > <img :class="classes"  src="../assets/ttlogo.png" height="71"></a></router-link >
+ <router-link to="/rooms"   tag="a"><a > <img :class="classes" alt="Not Found"  src="../assets/ttlogo.png" height="71"></a></router-link >
 </div>
 <nav id="nav-3">
 <router-link to="/rooms" activeClass="active" tag="a"><a class="link-3" >Rooms</a> </router-link >
