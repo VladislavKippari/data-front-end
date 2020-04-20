@@ -6,8 +6,7 @@
 
 <script>
 export default {
-  props: {
-  }
+ 
 };
 </script>
 
@@ -45,5 +44,4 @@ export default {
     
   }
 }
-
 </style>

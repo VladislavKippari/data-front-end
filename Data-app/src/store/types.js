@@ -1,1 +1,0 @@
-export const SELECTED_ROOM='mutations/SELECTED_ROOM';

@@ -1,7 +1,5 @@
-<template >
-         
+<template >   
   <div>
-   
     <div class="searchBar">
       <div class="room-wrapper third animated slideInLeft">
         <custom-select
@@ -31,19 +29,19 @@
 
     <Container v-slot="{ gridClass }">
       <div :class="gridClass">
-      
         <Item
-
           v-for="(room, i) in filterRooms"
           :key="`room-${i}`"
           :room="room.room"
-          
           :valuetype1="room.valuetype.find(item => item === valuetypeOtp1)"
           :valuetype2="room.valuetype.find(item => item=== valuetypeOtp2)"
           :valuetype3="room.valuetype.find(item => item === valuetypeOtp3)"
-         :value1="pusherArray.find(x => x.valuetype === valuetypeOtp1 && x.room===room.room) ? pusherArray.find(x => x.valuetype === valuetypeOtp1 && x.room===room.room).data:''"
-        :value2="pusherArray.find(x => x.valuetype === valuetypeOtp2 && x.room===room.room) ? pusherArray.find(x => x.valuetype === valuetypeOtp2 && x.room===room.room).data:''"
-         :value3="pusherArray.find(x => x.valuetype === valuetypeOtp3 && x.room===room.room) ? pusherArray.find(x => x.valuetype === valuetypeOtp3 && x.room===room.room).data:''"
+         :value1="pusherArray.find(x => x.valuetype === valuetypeOtp1 && x.room===room.room) ? 
+                  pusherArray.find(x => x.valuetype === valuetypeOtp1 && x.room===room.room).data:''"
+         :value2="pusherArray.find(x => x.valuetype === valuetypeOtp2 && x.room===room.room) ? 
+                  pusherArray.find(x => x.valuetype === valuetypeOtp2 && x.room===room.room).data:''"
+         :value3="pusherArray.find(x => x.valuetype === valuetypeOtp3 && x.room===room.room) ? 
+                  pusherArray.find(x => x.valuetype === valuetypeOtp3 && x.room===room.room).data:''"
           :dimension1="room.dimension.find(item => item === dimensionOtp1)"
           :dimension2="room.dimension.find(item => item === dimensionOtp2)"
           :dimension3="room.dimension.find(item => item === dimensionOtp3)"
@@ -84,8 +82,8 @@ export default {
       rooms: [], //massiiv filteriimise jaoks
       controllerSensor: [], //massiiv andmebaasi andmete hoidmiseks
       controllerList: [], //kontrolllerid loend rippmenuu
-      sensorList: [], //sensorid loend rippmenuu
-      roomList: [], //tuppa loend rippmenuu
+      sensorList: [], 
+      roomList: [], 
       avgDataList: []
     };
   },
@@ -160,6 +158,7 @@ export default {
       });
       this.$store.commit('roomsFill',this.roomList);
     //massiivi täitmine andmetega igale ruumile
+
     this.$http
       .get("http://localhost:3000/api/controller/sensor/room")
       .then(response => {
@@ -170,38 +169,26 @@ export default {
         for (let key in data) {
           resultArray.push(data[key]);
         }
-       
         var object = resultArray[1];
         var temp = [];
         var countrooms = 0;
-
-        //massiivi täitmine
         for (let i = 0; i < object.length; i++) {
           var temproom = "";
           if (temp.includes(object[i].room) === false) {
-            //kontroll, selleks et sama adnmed ei lähe massiivi
-
             this.controllerSensor.push({
-              //omadused  andmete paigaldamiseks
               room: "",
               sensors: [],
               controllers: []
             });
-
             this.controllerSensor[countrooms].room = object[i].room;
-
             for (let a = 0; a < object.length; a++) {
-              //sama ruumi otsimine selleks, et leida kõik võimalikud kontrollerid ja sensorid ruumist
-
               if (object[i].room === object[a].room) {
                 if (this.controllerSensor[countrooms].sensors.includes(object[a].sensorname) === false) {
-                  //dublikaatide kontroll
                   this.controllerSensor[countrooms].sensors.push(
                     object[a].sensorname
                   );
                 }
                 if (this.controllerSensor[countrooms].controllers.includes(object[a].controllername) === false) {
-                  //dublikaatide kontroll
                   this.controllerSensor[countrooms].controllers.push(
                     object[a].controllername
                   );
@@ -227,18 +214,11 @@ export default {
       });
   },
   computed: {
-   
-    //filtri realiseerimine sorteerimiseks
-    
+       
     filterRooms() {
-    
-
-      //andmed loendisse on lisatud uued omadused avarage,dimension,valuetype
-      for (let i = 0; i < this.controllerSensor.length; i++) {
-        this.controllerSensor[i].dimension = []; //uue omaduse initsialiseerimine
-        this.controllerSensor[i].valuetype = []; //uue omaduse initsialiseerimine
-        this.controllerSensor[i].avg = []; //uue omaduse initsialiseerimine
-        //uute andmete (keskmine arv) lisamine massiivisse
+    for (let i = 0; i < this.controllerSensor.length; i++) {
+        this.controllerSensor[i].dimension = []; 
+        this.controllerSensor[i].valuetype = []; 
         for (let a = 0; a < this.avgDataList.length; a++) {
           if (this.controllerSensor[i].room === this.avgDataList[a].room) {
             this.controllerSensor[i].dimension.push(
@@ -247,17 +227,9 @@ export default {
             this.controllerSensor[i].valuetype.push(
               this.avgDataList[a].valuetype
             );
-            this.controllerSensor[i].avg.push(
-              this.avgDataList[a].avg.toFixed(2)
-            ); //ümardamine
-
           }
-
         }
       }
-      
-      
-      //massiivi filtreerimine
       let filtered = this.controllerSensor;
       if (this.roomSearch) {
         filtered = this.controllerSensor.filter(
@@ -289,7 +261,6 @@ export default {
   z-index: 1000 !important;
   position: relative;
   margin-bottom: 5px;
-
 }
 .sensor-wrapper {
   margin-top: 25px;
@@ -301,8 +272,6 @@ export default {
   margin-left: auto;
   z-index: 100 !important;
   margin-bottom: 12px;
-
-
 }
 .controller-wrapper {
   margin-top: 25px;
@@ -314,10 +283,8 @@ export default {
   display: inline-block;
   z-index: 99 !important;
   margin-bottom: 12px;
-
 }
 .room-wrapper {
-
   margin-top: 25px;
   max-height: 5px;
   margin-right: auto;
@@ -327,16 +294,11 @@ export default {
   display: inline-block;
   z-index: 1001 !important;
   margin-bottom: 12px;
-
 }
-
-
-
 
 i {
   margin-left: 10px;
 }
-/* drop down style */
 .style-chooser .vs__search::placeholder,
 .style-chooser .vs__dropdown-toggle,
 .style-chooser .vs__dropdown-menu {
@@ -349,11 +311,9 @@ i {
   font-weight: 900;
   max-height: 150px;
   font-size: 18px;
-  
 }
-
 .style-chooser .vs__clear,
 .style-chooser .vs__open-indicator {
   fill: #394066;
 }
-</style>
+</style>    

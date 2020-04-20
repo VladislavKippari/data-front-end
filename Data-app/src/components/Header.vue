@@ -6,15 +6,8 @@
 <nav id="nav-3">
 <router-link to="/rooms" activeClass="active" tag="a"><a class="link-3" >Rooms</a> </router-link >
 <router-link to="/roominfo" activeClass="active" tag="a"><a class="link-3" >Room info</a> </router-link >
-<router-link to="/controllers" activeClass="active" tag="a"><a class="link-3" >Controllers</a> </router-link >
-<router-link to="/sensors" activeClass="active" tag="a"><a class="link-3" >Sensors</a> </router-link >
 </nav>
 </div>
-
-
-    
-
-    
 
 </template>
 <script>
@@ -39,10 +32,7 @@ export default {
 
 
 <style scoped>
-
-
 .bar img{
- 
 float: left;
 }
 
@@ -63,13 +53,9 @@ nav {
   text-align: center;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
-
 #nav-3 {
   background: #E4067F;
 }
-
-
-
 .link-3 {
   transition: 0.4s;
   color: #ffffff;
@@ -86,18 +72,13 @@ nav {
 
 .logo img{
 text-align: center;
- display: block;
+display: block;
 position: absolute;
 }
-
   .active a{
-     transition: 0.5s;
- 
+  transition: 0.5s;
   text-decoration: none;
- 
-  
   color: white;
-  
   border-bottom: 3px solid dodgerblue;
   }
 

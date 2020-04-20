@@ -12,10 +12,9 @@ import Footer from './components/Footer';
 
  
 export default {
-  components:{
+components:{
 'app-header':Header,
 'app-footer':Footer
-
   }
 };
 </script>
@@ -36,7 +35,5 @@ export default {
 }
 .test{
   padding-bottom:50px; 
- 
-
 }
 </style>

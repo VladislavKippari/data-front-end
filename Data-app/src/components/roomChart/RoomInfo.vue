@@ -3,7 +3,6 @@
     <div class="chosing" v-if="choice">
       <div class="heading">Data filtering</div>
       <button
-       
        class="margn btnselect animated bounceIn hvring"
         v-on:click="monthly=true;choice=false;"
       >
@@ -13,7 +12,6 @@
       </button>
 
       <button
-      
         class="btnselect animated bounceIn hvring"
         v-on:click="byHours=true;choice=false;"
       >
@@ -56,7 +54,7 @@
             :options="roomList"
           ></custom-select>
         </div>
-        <button class="btnselect hvring" v-on:click="monthly=true;byHours=false;">
+        <button class="btnselect hvring" v-on:click="monthly=true;byHours=false;controll=false;">
           <span>Months</span>
         </button>
       </div>
@@ -95,34 +93,39 @@
             :options="roomList"
           ></custom-select>
         </div>
-        <button class="btnselect hvring" v-on:click="byHours=true;monthly=false;">
+        <button class="btnselect hvring" v-on:click="byHours=true;monthly=false;controll=false;">
           <span>Days</span>
         </button>
       </div>
     </transition>
 
-    <Chart v-if="!choice" ref="skills_chart" :chart-data="chartData" :options="options"></Chart>
-    
+    <Chart :styles="myStyles" v-if="!choice" ref="data_chart" :chart-data="chartData" :options="options"></Chart>
    <div v-if="!choice">
-    
-  <div>Show current data: <toggle-button class="toBack" v-model="myDataVariable" :labels="{checked: 'On', unchecked: 'Off'}"/></div>
-    
+  <div class="togglers title3"> Current data <img  alt="Not Found"  src="../../assets/gauge.png" height="25">: 
+  <toggle-button class="toBack" v-model="myDataVariable" :labels="{checked: 'On', unchecked: 'Off'}"/></div>
+    <div class="togglers" v-if=myDataVariable>  Controller <img  alt="Not Found"  src="../../assets/microcont.png" height="25">: 
+    <toggle-button class="toBack" v-model="showController" :labels="{checked: 'On', unchecked: 'Off'}"/>  
+    Sensor <img  alt="Not Found"  src="../../assets/sensor.png" height="32">: 
+    <toggle-button class="toBack" v-model="showSensor" :labels="{checked: 'On', unchecked: 'Off'}"/></div>
    </div>
     <transition 
     appear
     mode="in-out"
     enter-active-class="animated fadeIn faster"
     leave-active-class="animated fadeOut faster"
-
     >
+
    <div v-if="!choice && myDataVariable" class="animated fadeIn">
        <div class="title2"><b class="title">Current Data</b></div>
-         <transition-group name="fade"
-     >
-     <div   v-for="(holl,index) in currentData"  :key="holl.id"  class="listStyle" 
-     :style="{backgroundColor:colors[index % colors.length]}"><b>{{holl.valuetype}}</b> - {{holl.data}}, <b class="blackColor"> Controller</b>{{holl.controller}}, <b class="blackColor"> Sensor</b> {{holl.sensor}}</div>
-           </transition-group>
-
+    <table class='comparison-table'>
+        <tr v-for="(item,index) in currentData" class="animated fadeIn" :key="item.id" :style="{backgroundColor:colors[index % colors.length]}" >
+          <td v-if=showCurrentData >
+          <div class="newLine" v-if=showSensor> <img  alt="Not Found"  src="../../assets/sensor.png" height="32"> {{item.sensor}}</div>
+          <div class="newLine" v-if=showController> <img  alt="Not Found"  src="../../assets/microcont.png" height="25"> {{item.controller}} </div>
+          <div class="newLine" ><img  alt="Not Found"  src="../../assets/gauge.png" height="25"> {{item.valuetype}} - {{item.data}} {{item.dimension}}</div>
+          </td>
+        </tr>
+    </table>
    </div>
     </transition>
     
@@ -130,28 +133,35 @@
     
 
  
-
+  <Modal v-if="showModal" @close="showModal = false">
+       
+        <h3 slot="header">This room have no data.</h3>
+      </Modal>
+        <Modal v-if="showSecondModal" @close="showSecondModal = false">
+       
+        <h3 slot="header">No data.</h3>
+      </Modal>
   </div>
 </template>
 
 <script>
-import {mapMutations} from 'vuex';
-import {mapGetters} from 'vuex';
-import {mapState} from 'vuex';
-import Pusher from 'pusher-js';
 import store from '../../store/store';
 import Chart from "./Chart";
+import Modal from "./Modal";
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import Datepicker from "vuejs-datepicker";
 var moment = require("moment");
-let arrayy=[]
-let tempArray=[]
 
 const options = {
-  responsive: true,
-  maintainAspectRatio: false,
+maintainAspectRatio:false,
+responsive:true,
+tooltips: {
+    mode: 'index',
+    intersect: false,
+   }
 
+,
   legend: {
     onClick: e => e.stopPropagation(),
     labels: {
@@ -160,30 +170,37 @@ const options = {
   },
   animation: {
     animateRotate: false
-  }
+  },
+  customLine: {
+color: 'dodgerblue'
+}
+ 
 };
 
- 
 
 export default {
   components: {
     vSelect,
     Datepicker,
-    Chart
-    
-    
+    Chart,
+    Modal
   },
+  
   name: "app",
+  
   data() {
     return {
-      testy:'bruh',
-   holder:store.getters.giveTrigger,
+    dataFromPusher:store.getters.giveTrigger,
     currentData:[],
       dimVal: [],
+      showModal:false,
+      showSecondModal:false,
+      controll:false,
+      showSensor:false,
+      showController:false,
       myDataVariable:false,
-            componentKey: 0,
       hover: false,
-       colors: ["#8eeb92", "white"],
+      colors: ["#8eeb92", "white"],
       arrSingleDay: [],
       singleDayValueType: "",
       singleDay: "",
@@ -202,23 +219,17 @@ export default {
       dataLabel: [],
       dataGraph: [],
       roomList: [],
-
       options,
       chartData: {
         labels: [],
         datasets: [
           {
-            pointBorderColor: "#6ccf71",
-            pointBackgroundColor: "#6ccf71",
-            pointHoverBackgroundColor: "#6ccf71",
-            pointHoverBorderColor: "#6ccf71",
-            pointBorderWidth: 7,
-            pointHoverRadius: 10,
-            pointHoverBorderWidth: 1,
-            pointRadius: 3,
+        pointBackgroundColor:"rgba(30, 143, 255, 0.281)",
+            pointRadius: 0,
             backgroundColor: ["rgba(30, 143, 255, 0.281)"],
             borderColor: ["rgba(228, 6, 127, 1)"],
-            borderWidth: 1,
+            borderWidth: 0,
+            pointHoverRadius: 0,
             label: "",
             data: []
           }
@@ -226,21 +237,31 @@ export default {
       },
 
       disabledDates: {
-        to: new Date(2019, 11, 25), // Disable all dates up to specific date
-        from: new Date(Date.now()) // Disable all dates after specific date
+        to: new Date(2019, 11, 25),
+        from: new Date(Date.now()) 
       }
     };
   },
   computed: {
    
-    
+    myStyles(){
+      return{
+        height:500+'px',
+         position: 'relative'
+      }
+    },
     currentDataSet() {
       return this.chartData.datasets[0].data;
     },
     
   },
   watch: {
-    holder(){
+    dataGraph(){
+      if(this.dataGraph.length===0 && this.controll===true){
+          this.showSecondModal=true;
+      }
+    },
+    dataFromPusher(){
        this.showCurrentData()
     },
     choice(){
@@ -250,12 +271,10 @@ export default {
       console.log(this.myDataVariable)
     },
     storedRoom() {
- this.showCurrentData()
-    
-     
-     
-    
+      this.showCurrentData()
       this.dropDvalues();
+      this.selectedValueType="";
+      this.singleDayValueType="";
       console.log(this.valueTypeArr);
       if (this.monthly) {
         this.intervalData();
@@ -265,8 +284,7 @@ export default {
     },
     
     monthly() {
-      //tuhista elementid sisestamiseks
-      this.dataGraph = [];
+       this.dataGraph = [];
       this.dataLabel = [];
       this.selectedValueType = "";
       this.singleDayValueType = "";
@@ -282,6 +300,8 @@ export default {
       this.singleDayCheck();
       if (this.singleDayValueType === null) {
         this.singleDayValueType = "";
+      }else{
+        this.controll=true
       }
     },
     dateStart() {
@@ -291,27 +311,33 @@ export default {
       this.intervalData();
     },
     selectedValueType() {
-      console.log(this.selectedValueType)
       this.intervalData();
       if (this.selectedValueType === null) {
         this.selectedValueType = "";
         this.dataGraph = [];
         this.dataLabel = [];
         this.refreshChart();
+      }else{
+        this.controll=true
+      }
+    },
+    valueTypeArr(){
+      if(this.valueTypeArr.length===0){
+          this.showModal=true;
+          this.choice=false;
+          this.monthly=true;
       }
     }
   },
   methods: {
-
-   
       showCurrentData(){
-           this.currentData.splice(0);
-      var filtered=this.holder.filter(m =>
-          m.room.includes(this.storedRoom)
-        );
+        this.currentData.splice(0);
+        var filtered=this.dataFromPusher.filter(m =>
+        m.room.includes(this.storedRoom));
       for (let index = 0; index <  filtered.length; index++) {
           this.currentData.push({
               valuetype: "",
+              dimension:"",
               controller:"",
               sensor:"",
               data:"",
@@ -320,9 +346,10 @@ export default {
             });
           
         this.currentData[index].valuetype=(filtered[index].valuetype)
+         this.currentData[index].dimension=(filtered[index].dimension)
         this.currentData[index].data=(filtered[index].data)
-        this.currentData[index].controller=(' - '+filtered[index].controllername)
-        this.currentData[index].sensor=(' - '+filtered[index].sensorname)
+        this.currentData[index].controller=(filtered[index].controllername)
+        this.currentData[index].sensor=(filtered[index].sensorname)
         this.currentData[index].id=(' - '+filtered[index].id)
       }
       },
@@ -344,10 +371,8 @@ export default {
           var count = 0;
           this.valueTypeArr = [];
           for (let index = 0; index < resultArray[1].length; index++) {
-            if (
-              resultArray[1][index].valuetype === "Illuminance" &&
-              count === 0
-            ) {
+            if (resultArray[1][index].valuetype === "Illuminance" &&
+              count === 0) {
               this.valueTypeArr.push(resultArray[1][index].valuetype);
             } else if (resultArray[1][index].valuetype !== "Illuminance") {
               this.valueTypeArr.push(resultArray[1][index].valuetype);
@@ -358,28 +383,10 @@ export default {
           }
         });
     },
-     trigyr() {
-      this.$http
-        .get(
-          "http://localhost:3000/bruh"
-        )
-        .then(response => {
-          return response.json();
-        })
-        .then(data => {
-         console.log(data+"are you here>?")
-            for (let key in data) {
-            console.log(data[key]);
-          }
-        });
-    }
-    ,
-
-
+  
     handler() {
       this.$router.go(-1);
     },
-    //keskmise väärtuse loendamine määratud massiivis ARRAY iga minut või tund sõltuvalt INTERVALFORAVG
     graphDataManipulation(array, intervalForAvg) {
       var temparr = [];
       var countHours = 0;
@@ -390,16 +397,6 @@ export default {
       var tempHold = array;
       for (let index = 0; index < tempHold.length; index++) {
         if (countHours === 0) {
-          tempForRestData = {};
-          tempForRestData = {
-            controllername: tempHold[index].controllername,
-            dimension: tempHold[index].dimension,
-            room: tempHold[index].room,
-            sensorname: tempHold[index].sensorname,
-            valuetype: tempHold[index].valuetype,
-            data: tempHold[index].data
-          };
-
           temparr.push({
             date: tempHold[index].date,
             data: "",
@@ -410,26 +407,23 @@ export default {
             valuetype: ""
           });
         }
-
-        if (
-          Math.abs(
-            new Date(temparr[countDates].date) - new Date(tempHold[index].date)
-          ) /
-            36e5 >
-          intervalForAvg
-        ) {
+        if (Math.abs(new Date(temparr[countDates].date) - new Date(tempHold[index].date))
+         /36e5 >intervalForAvg) 
+         {
           var total = 0;
           for (var i = 0; i < arrForAvg.length; i++) {
             total += arrForAvg[i];
           }
           var avg = total / arrForAvg.length;
+          if(avg!==0){
           temparr[countDates].data = avg;
-          temparr[countDates].room = tempForRestData.room;
-          temparr[countDates].controllername = tempForRestData.controllername;
-          temparr[countDates].dimension = tempForRestData.dimension;
-          temparr[countDates].sensorname = tempForRestData.sensorname;
-          temparr[countDates].valuetype = tempForRestData.valuetype;
-
+          temparr[countDates].room = tempHold[index].room;
+          temparr[countDates].controllername = tempHold[index].controllername;
+          temparr[countDates].dimension = tempHold[index].dimension;
+          temparr[countDates].sensorname = tempHold[index].sensorname;
+          temparr[countDates].valuetype = tempHold[index].valuetype;
+          }
+          
           arrForAvg = [];
           countHours = 0;
           countDates++;
@@ -438,7 +432,6 @@ export default {
           countHours++;
         }
       }
-
       return (temparr = temparr.filter(item => item.data !== ""));
     },
     singleDayCheck() {
@@ -454,8 +447,8 @@ export default {
       );
     },
     updateChart() {
-      if (this.$refs.skills_chart) {
-        this.$refs.skills_chart.update();
+      if (this.$refs.data_chart) {
+        this.$refs.data_chart.update();
       }
     },
     refreshChart() {
@@ -539,16 +532,12 @@ export default {
               for (let key in data) {
                 resultArray.push(data[key]);
               }
-
               this.dataChart = resultArray[1];
-              console.log("this.dataChart");
-              console.log(this.dataChart);
             });
         }
       } catch (error) {
         console.log(error);
       }
-
       if (
         this.dateStart !== "" &&
         this.dateEnd !== "" &&
@@ -571,21 +560,13 @@ export default {
         }
 
         filtered.sort(function(a, b) {
-          // Turn your strings into dates, and then subtract them
-          // to get a value that is either negative, positive, or zero.
           return (
             new Date(moment(a.date).format("YYYY-MM-DD")) -
             new Date(moment(b.date).format("YYYY-MM-DD"))
           );
         });
-        var temp = this.graphDataManipulation(filtered, 4); //keskmised andmed ühe päeva jaoks
-        temp.sort(function(a, b) {
-          return (
-            new Date(moment(a.date).format("YYYY-MM-DD")) -
-            new Date(moment(b.date).format("YYYY-MM-DD"))
-          );
-        });
-
+        var temp = this.graphDataManipulation(filtered, 4); 
+       
         this.dataGraph = [];
         this.dataLabel = [];
         for (let index = 0; index < temp.length; index++) {
@@ -612,6 +593,7 @@ export default {
     window.addEventListener("unload", this.handler);
   },
   created() {
+    
     this.$http
       .get("http://localhost:3000/api/dimensions/valuetypes")
       .then(response => {
@@ -703,7 +685,6 @@ button {
   text-decoration: none;
   display: inline-block;
   font-size: 30px;
-
   cursor: pointer;
   width: 200px;
   border-radius: 13px;
@@ -714,12 +695,12 @@ button {
   font-size: 25px;
 }
 .hvring{
-    background: linear-gradient(to right, #8eeb92 50%, rgba(30, 143, 255, 0.685) 50%);
+  background: linear-gradient(to right, #8eeb92 50%, rgba(30, 143, 255, 0.685) 50%);
   background-size: 200% 100%;
   background-position: right bottom;
   color: white;
   font-weight: bold;
-   transition: all 1.5s ease;
+  transition: all 1.5s ease;
 }
 .datepicker >>> input {
   width: 145px;
@@ -749,19 +730,18 @@ button {
 
 }
 .hvring:hover span{
-color: black;
-transition:1s;
+ color: black;
+ transition:1s;
 }
 .datepicker >>> input:hover {
   background-position: left bottom;
   color: black;
-
   font-weight: bold;
 }
 
 .datepicker {
   display: inline-block;
-    text-decoration: none;
+  text-decoration: none;
 
 }
 
@@ -790,9 +770,20 @@ button:hover span:after {
   color:#E4067F;
 }
 .listStyle{
-          color: black;
-          font-size:22px;
-          text-align: center;
+  color: black;
+  font-size:22px;
+}
+.onLeft{
+  float: left;
+  width:300px;
+}
+.onCenter{       
+  margin:0 auto;
+  width:300px;
+}
+.onRight{
+    float: right;
+    width:500px;
 }
 
 .margintop {
@@ -803,14 +794,20 @@ b{
 color:black;
   font-size: 22px;
 }
+
 .title2{
   text-align: center;
   margin-bottom: 10px;
+  padding-top: 10px;
+}
+.title3{
+  padding-top: 50px;
 }
 .title{
-color:black;
-text-align: center;
-  font-size: 35px;
+ color:black;
+ text-align: center;
+ font-size: 35px;
+ 
   
 }
 .fade-enter-active, .fade-leave-active {
@@ -821,6 +818,35 @@ text-align: center;
 }
 .fade-enter-active {
   transition-delay: .2s;
+}
+.working{
+  position: relative;
+  height:300px;
+  width:100%;
+}
+.togglers{
+  display: inline-block;
+  font-size: 30px;
+}
+
+
+table {
+ border: 1px solid grey;
+ border-collapse: collapse;
+ margin: 0 auto;
+}
+
+
+
+td {
+ border: 1px solid grey;
+ padding: 10px;
+ display: block;
+ text-align: center;
+}
+.newLine{
+  display: block;
+  font-size: 30px;
 }
 
 
