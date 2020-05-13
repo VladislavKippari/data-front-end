@@ -38,30 +38,31 @@ Pusher.logToConsole = true;
       forceTLS: true
     });
     
-   var count=0;
-   var sensorDuplicate=0;
-   var dateCheck;
-   let arrForControllDuplicate=[];
-   var channel = pusher.subscribe('watch_datasensor4');
-    channel.bind('my-event', function(data) {
-       if(count===0){
-        dateCheck=new Date(Date.parse(data.date));
-        count++
-      }else if ((new Set(arrForControllDuplicate)).size !== arrForControllDuplicate.length){
-        store.commit('triggerClear');
-        arrForControllDuplicate=[];
-        sensorDuplicate=0;
-        dateCheck=new Date(Date.parse(data.date));
-      }
-      arrForControllDuplicate.push(data)
-        store.commit('triggerFill',data);
-        if(data.room==='208' && data.valuetype==='Lumen'){
-          if(sensorDuplicate>0){
-          store.commit('triggerSplice');
-          }
-          sensorDuplicate++;
-        }  
-    });
+    var count=0;
+    var sensorDuplicate=0;
+    var dateCheck;
+    var channel = pusher.subscribe('watch_datasensor4');
+     channel.bind('my-event', function(data) {
+        if(count===0){
+         dateCheck=new Date(Date.parse(data.date));
+         count++
+       }
+       
+       else if (new Date(Math.abs(new Date(Date.parse(data.date))-dateCheck)).getMinutes()>3){
+         store.commit('triggerClear');
+         sensorDuplicate=0;
+         dateCheck=new Date(Date.parse(data.date));
+       }
+       console.log(new Date(Math.abs(new Date(Date.parse(data.date))-dateCheck)).getMinutes()+"LOOOOOKKKKKKKK")
+
+         store.commit('triggerFill',data);
+         if(data.room==='208' && data.valuetype==='Lumen'){
+           if(sensorDuplicate>0){
+           store.commit('triggerSplice');
+           }
+           sensorDuplicate++;
+         }  
+     });
     
   
 new Vue({
