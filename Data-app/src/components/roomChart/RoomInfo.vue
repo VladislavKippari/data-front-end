@@ -135,7 +135,7 @@
  
   <Modal v-if="showModal" @close="showModal = false">
        
-        <h3 slot="header">This room have no data.</h3>
+        <h3 slot="header">This room has no data.</h3>
       </Modal>
         <Modal v-if="showSecondModal" @close="showSecondModal = false">
        
@@ -330,6 +330,15 @@ export default {
     }
   },
   methods: {
+      compare( a, b ) {
+    if ( a.valuetype.toLowerCase() < b.valuetype.toLowerCase() ){
+      return -1;
+    }
+    if ( a.valuetype.toLowerCase() > b.valuetype.toLowerCase() ){
+      return 1;
+    }
+    return 0;
+  },
       showCurrentData(){
         this.currentData.splice(0);
         var filtered=this.dataFromPusher.filter(m =>
@@ -351,7 +360,10 @@ export default {
         this.currentData[index].controller=(filtered[index].controllername)
         this.currentData[index].sensor=(filtered[index].sensorname)
         this.currentData[index].id=(' - '+filtered[index].id)
+        
       }
+                    this.currentData.sort(this.compare);
+
       },
     
     dropDvalues() {
@@ -508,7 +520,7 @@ export default {
       for (let index = 0; index < temp.length; index++) {
         this.dataGraph.push(temp[index].data.toFixed(2));
         this.dataLabel.push(
-          moment(temp[index].date).format("YYYY-MM-DD, HH:mm:ss")
+          moment(temp[index].date).format("HH:mm")
         );
       }
       this.refreshChart();
@@ -572,7 +584,7 @@ export default {
         for (let index = 0; index < temp.length; index++) {
           this.dataGraph.push(temp[index].data.toFixed(2));
           this.dataLabel.push(
-            moment(temp[index].date).format("YYYY-MM-DD, HH:mm:ss")
+            moment(temp[index].date).format("YYYY-MM-DD")
           );
         }
         this.refreshChart();

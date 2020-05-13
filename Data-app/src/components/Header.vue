@@ -1,6 +1,6 @@
 <template>
 <div >
-<div class="logo" v-on:mouseover="hoverOver" v-on:mouseout="hoverOut">
+<div class="logo" >
  <router-link to="/rooms"   tag="a"><a > <img :class="classes" alt="Not Found"  src="../assets/ttlogo.png" height="71"></a></router-link >
 </div>
 <nav id="nav-3">

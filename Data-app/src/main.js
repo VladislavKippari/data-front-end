@@ -10,6 +10,7 @@ import 'nprogress/nprogress.css'
 import Pusher from 'pusher-js';
 import { ToggleButton } from 'vue-js-toggle-button'
 
+
 Vue.component('ToggleButton', ToggleButton)
 Vue.use(VueResource);
 Vue.component('v-select', vSelect)
@@ -40,16 +41,19 @@ Pusher.logToConsole = true;
    var count=0;
    var sensorDuplicate=0;
    var dateCheck;
+   let arrForControllDuplicate=[];
    var channel = pusher.subscribe('watch_datasensor4');
     channel.bind('my-event', function(data) {
        if(count===0){
         dateCheck=new Date(Date.parse(data.date));
         count++
-      }else if ((new Date(Date.parse(data.date)).getMinutes()-dateCheck.getMinutes())>3){
+      }else if ((new Set(arrForControllDuplicate)).size !== arrForControllDuplicate.length){
         store.commit('triggerClear');
+        arrForControllDuplicate=[];
         sensorDuplicate=0;
         dateCheck=new Date(Date.parse(data.date));
       }
+      arrForControllDuplicate.push(data)
         store.commit('triggerFill',data);
         if(data.room==='208' && data.valuetype==='Lumen'){
           if(sensorDuplicate>0){

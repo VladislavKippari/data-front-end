@@ -3,6 +3,7 @@
         <app-header></app-header>
          <router-view class="test"></router-view>
          <app-footer></app-footer>
+         
     </div>
 </template>
 

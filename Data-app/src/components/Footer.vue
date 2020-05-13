@@ -1,12 +1,10 @@
 <template>
   <div class="footer">
-    <span class="textColor">"{{quotes[1]}}"</span>
-    
-    <br/><strong>{{quotes[2]}}</strong>
-    <strong v-if='quotes[2]===""'>Unknown</strong>
+  
      <div class="ga_sep"> Contact:
   
     <strong>kippari.v@gmail.com</strong></div>
+
   </div>
 </template>
 <script>
@@ -17,19 +15,7 @@ export default {
     };
   },
   created() {
-    this.$http
-      .get("https://quote-garden.herokuapp.com/quotes/random")
-      .then(response => {
-        return response.json();
-      })
-      .then(data => {
-        const resultArray = [];
-        for (let key in data) {
-          resultArray.push(data[key]);
-        }
-        this.quotes = resultArray;
-        console.log(this.quotes);
-      });
+  
   }
 };
 </script>
