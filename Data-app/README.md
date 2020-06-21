@@ -1,4 +1,4 @@
-# data-app
+## Vue.js SPA based on REST API backend that you can find on https://github.com/VladislavKippari/data-back-end
 
 > Front end part for outputing data
 
@@ -8,10 +8,12 @@ Make sure you have installed Node.js
 Create account on Pusher https://pusher.com/ for using realtime data.
 
 In main.js fail declare Pusher code.
-# install dependencies
+
+Realtime data not working, because database is not being updated
+# Install dependencies
 npm install
 
-# serve at localhost
+# Serve at localhost
 npm run dev
 
 
