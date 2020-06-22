@@ -1,4 +1,4 @@
-## Vue.js SPA based on REST API backend that you can find on https://github.com/VladislavKippari/data-back-end
+## REST API backend (Express.js, PostgreSQL) you can find on https://github.com/VladislavKippari/data-back-end
 
 > Front end part for outputing data
 
