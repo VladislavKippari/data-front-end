@@ -13,6 +13,7 @@ cd Data-app
 >npm install
 
 # Serve at localhost
-npm run dev
+* npm run dev  
+* for better representation of Vue SPA run backend https://github.com/VladislavKippari/data-back-end
 
 
