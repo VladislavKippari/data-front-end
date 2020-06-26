@@ -1,6 +1,5 @@
 ## REST API backend (Express.js, PostgreSQL) you can find on https://github.com/VladislavKippari/data-back-end
 
-> Front end part for outputing data
 
 ## Build Setup
 Make sure you have installed Node.js  
